@@ -204,8 +204,12 @@ public class WebAppController {
 			pet = this.sessionUser.getPets().get(id - 1);
 		}
 
-		model.addAttribute("products",
-				this.petStoreService.getProducts(pet.getCategory().getName() + " " + category, pet.getTags()));
+		try {
+			model.addAttribute("products",
+			this.petStoreService.getProducts(pet.getCategory().getName() + " " + category, pet.getTags()));
+		} catch (Exception ex) {
+			this.sessionUser.getTelemetryClient().trackException(ex);
+		}
 		return "products";
 	}
 

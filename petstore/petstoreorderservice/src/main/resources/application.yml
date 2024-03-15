@@ -1,3 +1,9 @@
+logging:
+  level:
+    ROOT: INFO
+    com.chtrembl: INFO
+    org.springframework: DEBUG
+    
 springfoxdocumentation:
   swagger:
     v2:
@@ -29,3 +35,7 @@ management:
   endpoint:
     httptrace:
       enabled: true
+
+azure:
+  application-insights:
+    instrumentation-key: ${PETSTOREAPP_AI_INSTRUMENTATION_KEY}
