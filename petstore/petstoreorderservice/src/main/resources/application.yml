@@ -39,3 +39,6 @@ management:
 azure:
   application-insights:
     instrumentation-key: ${PETSTOREAPP_AI_INSTRUMENTATION_KEY}
+  cosmos:
+    uri: ${COSMOS_URI}
+    key: ${COSMOS_KEY}

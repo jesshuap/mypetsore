@@ -12,6 +12,10 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+  datasource:
+    url: ${POSTGRES_URL:jdbc:postgresql://petstore-relational.postgres.database.azure.com:5432/petstoreproductservice_db}
+    username: ${POSTGRES_USER:jess}
+    password: ${POSTGRES_PWD:}
 
 management:
   endpoints:

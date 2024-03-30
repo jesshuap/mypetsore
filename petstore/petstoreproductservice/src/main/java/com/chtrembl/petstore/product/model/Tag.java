@@ -1,6 +1,12 @@
 package com.chtrembl.petstore.product.model;
 
+import java.util.List;
 import java.util.Objects;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 
 import org.springframework.validation.annotation.Validated;
 
@@ -13,13 +19,18 @@ import io.swagger.annotations.ApiModelProperty;
  */
 @Validated
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2021-12-20T15:31:39.272-05:00")
-
+@Entity
+@Table(name = "tag")
 public class Tag {
 	@JsonProperty("id")
+	@Id
 	private Long id = null;
 
 	@JsonProperty("name")
 	private String name = null;
+
+	@ManyToMany(mappedBy = "tags")
+	private List<Product> products = null;
 
 	public Tag id(Long id) {
 		this.id = id;

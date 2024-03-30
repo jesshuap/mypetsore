@@ -21,7 +21,6 @@ import io.swagger.annotations.ApiModelProperty;
  */
 @Validated
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.SpringCodegen", date = "2021-12-23T15:16:30.446-05:00")
-
 public class Order implements Serializable {
 	@JsonProperty("id")
 	private String id = null;
@@ -254,6 +253,7 @@ public class Order implements Serializable {
 		sb.append("class Order {\n");
 
 		sb.append("    id: ").append(toIndentedString(id)).append("\n");
+		sb.append("    email: ").append(toIndentedString(email)).append("\n");
 		sb.append("    products: ").append(toIndentedString(products)).append("\n");
 		sb.append("    shipDate: ").append(toIndentedString(shipDate)).append("\n");
 		sb.append("    tags: ").append(toIndentedString(tags)).append("\n");

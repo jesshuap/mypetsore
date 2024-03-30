@@ -3,6 +3,7 @@ package com.chtrembl.petstore.order.api;
 import com.chtrembl.petstore.order.model.ContainerEnvironment;
 import com.chtrembl.petstore.order.model.Order;
 import com.chtrembl.petstore.order.model.Product;
+import com.chtrembl.petstore.order.service.OrderService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiParam;
 import org.slf4j.Logger;
@@ -47,6 +48,9 @@ public class StoreApiController implements StoreApi {
 	@Autowired
 	private ContainerEnvironment containerEnvironment;
 
+	@Autowired
+	private OrderService orderDBService;
+	
 	@Autowired
 	private StoreApiCache storeApiCache;
 
@@ -104,7 +108,9 @@ public class StoreApiController implements StoreApi {
 	public ResponseEntity<Order> placeOrder(
 			@ApiParam(value = "order placed for purchasing the product", required = true) @Valid @RequestBody Order body) {
 		conigureThreadForLogging();
-
+		body.setEmail("defaultEmail@myemail.com");
+		log.info(String.format("PetStoreOrderService order argument:%s",body.toString()));
+		
 		String acceptType = request.getHeader("Content-Type");
 		String contentType = request.getHeader("Content-Type");
 		if (acceptType != null && contentType != null && acceptType.contains("application/json")
@@ -114,19 +120,21 @@ public class StoreApiController implements StoreApi {
 					"PetStoreOrderService incoming POST request to petstoreorderservice/v2/order/placeOder for order id:%s",
 					body.getId()));
 
-			this.storeApiCache.getOrder(body.getId()).setId(body.getId());
-			this.storeApiCache.getOrder(body.getId()).setEmail(body.getEmail());
-			this.storeApiCache.getOrder(body.getId()).setComplete(body.isComplete());
+		    Order order = this.orderDBService.findOrderById(body.getId(), body.getEmail());
+			log.info(String.format("PetStoreOrderService order found:%s", order.toString()));
+			order.setId(body.getId());
+			order.setEmail(body.getEmail());
+			order.setComplete(body.isComplete());
 
 			// 1 product is just an add from a product page so cache needs to be updated
 			if (body.getProducts() != null && body.getProducts().size() == 1) {
 				Product incomingProduct = body.getProducts().get(0);
-				List<Product> existingProducts = this.storeApiCache.getOrder(body.getId()).getProducts();
+				List<Product> existingProducts = order.getProducts();
 				if (existingProducts != null && existingProducts.size() > 0) {
 					// removal if one exists...
 					if (incomingProduct.getQuantity() == 0) {
 						existingProducts.removeIf(product -> product.getId().equals(incomingProduct.getId()));
-						this.storeApiCache.getOrder(body.getId()).setProducts(existingProducts);
+						order.setProducts(existingProducts);
 					}
 					// update quantity if one exists or add new entry
 					else {
@@ -145,25 +153,32 @@ public class StoreApiController implements StoreApi {
 							}
 						} else {
 							// existing products but one does not exist matching the incoming product
-							this.storeApiCache.getOrder(body.getId()).addProductsItem(body.getProducts().get(0));
+							log.info("Add products");
+							order.addProductsItem(body.getProducts().get(0));
 						}
 					}
 				} else {
 					// nothing existing....
 					if (body.getProducts().get(0).getQuantity() > 0) {
-						this.storeApiCache.getOrder(body.getId()).setProducts(body.getProducts());
+						order.setProducts(body.getProducts());
 					}
 				}
 			}
 			// n products is the current order being modified and so cache can be replaced
 			// with it
 			if (body.getProducts() != null && body.getProducts().size() > 1) {
-				this.storeApiCache.getOrder(body.getId()).setProducts(body.getProducts());
+				order.setProducts(body.getProducts());
 			}
 
+			//saving or updating item on DB
+			this.orderDBService.createOrUpdateOrder(order);
+			log.info("Order has been stored on the DB");
+
 			try {
-				Order order = this.storeApiCache.getOrder(body.getId());
 				String orderJSON = new ObjectMapper().writeValueAsString(order);
+				log.info(String.format(
+					"PetStoreOrderService body response to send:%s",
+					orderJSON));
 
 				ApiUtil.setResponse(request, "application/json", orderJSON);
 				return new ResponseEntity<>(HttpStatus.OK);
@@ -193,7 +208,9 @@ public class StoreApiController implements StoreApi {
 
 			List<Product> products = this.storeApiCache.getProducts();
 
-			Order order = this.storeApiCache.getOrder(orderId);
+			Order order =  this.orderDBService.findOrderById(orderId, "defaultEmail@myemail.com");
+
+			log.info(String.format("PetStoreOrderService getOrderById, order found:%s", order.toString()));
 
 			if (products != null) {
 				// cross reference order data (order only has product id and qty) with product
@@ -211,6 +228,8 @@ public class StoreApiController implements StoreApi {
 							"PetStoreOrderService incoming GET request to petstoreorderservice/v2/order/getOrderById for order id:%s failed: %s",
 							orderId, e.getMessage()));
 				}
+			}else{
+				log.info("No products found");
 			}
 
 			try {

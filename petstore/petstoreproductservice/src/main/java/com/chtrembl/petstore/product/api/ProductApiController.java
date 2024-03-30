@@ -26,9 +26,9 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.chtrembl.petstore.product.model.ContainerEnvironment;
-import com.chtrembl.petstore.product.model.DataPreload;
 import com.chtrembl.petstore.product.model.ModelApiResponse;
 import com.chtrembl.petstore.product.model.Product;
+import com.chtrembl.petstore.product.repository.ProductServiceRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -50,12 +50,11 @@ public class ProductApiController implements ProductApi {
 	private ContainerEnvironment containerEnvironment;
 
 	@Autowired
-	private DataPreload dataPreload;
+    private ProductServiceRepository productRepository;
 
-	@Override
-	public DataPreload getBeanToBeAutowired() {
-		return dataPreload;
-	}
+    private List<Product> getAllProducts() {
+        return productRepository.findAll();
+    }
 
 	@org.springframework.beans.factory.annotation.Autowired
 	public ProductApiController(ObjectMapper objectMapper, NativeWebRequest request) {
@@ -100,8 +99,9 @@ public class ProductApiController implements ProductApi {
 			ProductApiController.log.info(String.format(
 					"PetStoreProductService incoming GET request to petstoreproductservice/v2/pet/findProductsByStatus?status=%s",
 					status));
+			List<Product> products = this.getAllProducts();
 			try {
-				String petsJSON = new ObjectMapper().writeValueAsString(this.getPreloadedProducts());
+				String petsJSON = new ObjectMapper().writeValueAsString(products);
 				ApiUtil.setResponse(request, "application/json", petsJSON);
 				return new ResponseEntity<>(HttpStatus.OK);
 			} catch (JsonProcessingException e) {
