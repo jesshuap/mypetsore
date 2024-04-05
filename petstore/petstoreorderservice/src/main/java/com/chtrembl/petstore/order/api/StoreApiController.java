@@ -4,6 +4,7 @@ import com.chtrembl.petstore.order.model.ContainerEnvironment;
 import com.chtrembl.petstore.order.model.Order;
 import com.chtrembl.petstore.order.model.Product;
 import com.chtrembl.petstore.order.service.OrderService;
+import com.chtrembl.petstore.order.service.QueueSenderService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiParam;
 import org.slf4j.Logger;
@@ -50,6 +51,9 @@ public class StoreApiController implements StoreApi {
 
 	@Autowired
 	private OrderService orderDBService;
+
+	@Autowired
+	private QueueSenderService queueService;
 	
 	@Autowired
 	private StoreApiCache storeApiCache;
@@ -176,10 +180,14 @@ public class StoreApiController implements StoreApi {
 
 			try {
 				String orderJSON = new ObjectMapper().writeValueAsString(order);
-				log.info(String.format(
-					"PetStoreOrderService body response to send:%s",
-					orderJSON));
 
+				log.info("Putting message on queue");
+				
+				//putting message on queue for Function to consume
+				this.queueService.sendMessage(orderJSON);
+
+				log.info(String.format("PetStoreOrderService body response to send:%s",
+					orderJSON));
 				ApiUtil.setResponse(request, "application/json", orderJSON);
 				return new ResponseEntity<>(HttpStatus.OK);
 			} catch (IOException e) {

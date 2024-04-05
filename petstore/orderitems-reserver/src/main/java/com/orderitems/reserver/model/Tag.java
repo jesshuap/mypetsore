@@ -3,13 +3,18 @@ package com.orderitems.reserver.model;
 import java.io.Serializable;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Tag
  */
 @SuppressWarnings("serial")
 public class Tag implements Serializable {
+	
+	@JsonProperty("id")
 	private Long id = null;
 
+	@JsonProperty("name")
 	private String name = null;
 
 	@Override

@@ -1,9 +1,13 @@
 package com.orderitems.reserver.model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import java.time.OffsetDateTime;
 
 /**
@@ -12,19 +16,21 @@ import java.time.OffsetDateTime;
 
 public class Order implements Serializable {
 
+	@JsonProperty("id")
 	private String id = null;
 
+	@JsonProperty("email")
 	private String email = null;
 
+	@JsonProperty("products")
 	private List<Product> products = null;
 
+	@JsonProperty("shipDate")
 	private OffsetDateTime shipDate = null;
 
+	@JsonProperty("tags")
 	private List<Tag> tags = null;
 
-	/**
-	 * Order Status
-	 */
 	public enum StatusEnum {
 		PLACED("placed"),
 
@@ -39,9 +45,12 @@ public class Order implements Serializable {
 		}
 
 		@Override
+		@JsonValue
 		public String toString() {
 			return String.valueOf(value);
 		}
+
+		@JsonCreator
 		public static StatusEnum fromValue(String text) {
 			for (StatusEnum b : StatusEnum.values()) {
 				if (String.valueOf(b.value).equals(text)) {
@@ -52,9 +61,15 @@ public class Order implements Serializable {
 		}
 	}
 
+	@JsonProperty("status")
 	private StatusEnum status = null;
 
+	@JsonProperty("complete")
 	private Boolean complete = null;
+
+	public String getId() {
+		return this.id;
+	}
 
 	@Override
 	public boolean equals(java.lang.Object o) {

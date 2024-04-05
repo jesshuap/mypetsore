@@ -3,17 +3,24 @@ package com.orderitems.reserver.model;
 import java.io.Serializable;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Product
  */
 @SuppressWarnings("serial")
 public class Product implements Serializable {
+	
+	@JsonProperty("id")
 	private Long id = null;
 
+	@JsonProperty("quantity")
 	private Integer quantity = null;
 
+	@JsonProperty("name")
 	private String name = null;
 
+	@JsonProperty("photoURL")
 	private String photoURL;
 
 	@Override

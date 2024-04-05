@@ -226,22 +226,25 @@ public class PetStoreServiceImpl implements PetStoreService {
 					.bodyToMono(Order.class).block();
 
 			//id of the order to use it as blob identifier
-			final String orderID = updatedOrder.getId();
+			//final String orderID = updatedOrder.getId();
+			logger.info("function call has been removed");
 
 			//call azure function to persist the order
-			String result = this.storeOrderWebClient.post().uri(uriBuilder -> uriBuilder.path("/api/orders/{orderid}").build(orderID))
-					.bodyValue(updatedOrder)
-					.accept(MediaType.APPLICATION_JSON)
-					.header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-					.header("Cache-Control", "no-cache")
-					.retrieve()
-					.bodyToMono(String.class).block();
+			// String result = this.storeOrderWebClient.post().uri(uriBuilder -> uriBuilder.path("/api/orders/{orderid}").build(orderID))
+			// 		.bodyValue(updatedOrder)
+			// 		.accept(MediaType.APPLICATION_JSON)
+			// 		.header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+			// 		.header("Cache-Control", "no-cache")
+			// 		.retrieve()
+			// 		.bodyToMono(String.class).block();
 
-            //register custom event after persisting order
-			this.sessionUser.getTelemetryClient()
-					.trackEvent(String.format(
-							"Order update has been persisted with result %s",
-							result), this.sessionUser.getCustomEventProperties(), null);
+			//TODO PUT message on Queue
+
+            // //register custom event after persisting order
+			// this.sessionUser.getTelemetryClient()
+			// 		.trackEvent(String.format(
+			// 				"Order update has been persisted with result %s",
+			// 				result), this.sessionUser.getCustomEventProperties(), null);
 
 		} catch (Exception e) {
 			logger.warn(e.getMessage());

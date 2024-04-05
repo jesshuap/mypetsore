@@ -42,3 +42,6 @@ azure:
   cosmos:
     uri: ${COSMOS_URI}
     key: ${COSMOS_KEY}
+  servicebus:
+    connectionString: ${SB_CONNECTION}
+    queueName: ${QUEUE_NAME}
