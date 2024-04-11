@@ -62,6 +62,7 @@ public class WebAppController {
 
 	@ModelAttribute
 	public void setModel(HttpServletRequest request, Model model, OAuth2AuthenticationToken token) {
+		logger.info("Set model method");
 
 		CaffeineCache caffeineCache = (CaffeineCache) this.currentUsersCacheManager
 				.getCache(ContainerEnvironment.CURRENT_USERS_HUB);
@@ -81,6 +82,7 @@ public class WebAppController {
 		caffeineCache.put(this.sessionUser.getSessionId(), this.sessionUser.getName());
 
 		if (token != null) {
+			logger.info("Token is not null");
 			final OAuth2User user = token.getPrincipal();
 
 			try {
@@ -297,6 +299,7 @@ public class WebAppController {
 			throws URISyntaxException {
 		logger.info(String.format("PetStoreApp %s requested and %s is being routed to home view session %s",
 				request.getRequestURI(), this.sessionUser.getName(), this.sessionUser.getSessionId()));
+		logger.info(String.format("PetStoreApp - token is %s", token));		
 		PageViewTelemetry pageViewTelemetry = new PageViewTelemetry();
 		pageViewTelemetry.setUrl(new URI(request.getRequestURL().toString()));
 		pageViewTelemetry.setName("landing");

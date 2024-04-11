@@ -17,7 +17,7 @@ import com.chtrembl.petstoreapp.model.ContainerEnvironment;
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 	private static Logger logger = LoggerFactory.getLogger(WebSecurityConfiguration.class);
 
-	@Autowired(required = false)
+	@Autowired
 	private AADB2COidcLoginConfigurerWrapper aadB2COidcLoginConfigurerWrapper = null;
 
 	@Autowired
@@ -25,6 +25,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Override
 	public void configure(WebSecurity web) throws Exception {
+		logger.info("configure(WebSecurity web)");
 		if (this.aadB2COidcLoginConfigurerWrapper != null
 				&& this.aadB2COidcLoginConfigurerWrapper.getConfigurer() != null) {
 			web.ignoring().antMatchers("/content/**");
@@ -34,9 +35,10 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-
+		logger.info("void configure(HttpSecurity http)");
 		if (this.aadB2COidcLoginConfigurerWrapper != null
 				&& this.aadB2COidcLoginConfigurerWrapper.getConfigurer() != null) {
+			logger.info("aadB2COidcLoginConfigurerWrapper and configurer are not null");
 
 			http.csrf().ignoringAntMatchers("/signalr/**").and().authorizeRequests().antMatchers("/")
 					.permitAll()
@@ -51,7 +53,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 					.antMatchers("/signalr/negotiate").permitAll()
 					.antMatchers("/signalr/test").permitAll()
 					.antMatchers("/login*").permitAll().anyRequest()
-					.authenticated().and().apply(this.aadB2COidcLoginConfigurerWrapper.getConfigurer()).and()
+					.authenticated().and().apply(this.aadB2COidcLoginConfigurerWrapper.getConfigurer())
+					.and()
 					.oauth2Login().loginPage("/login");
 
 			this.containeEnvironment.setSecurityEnabled(true);

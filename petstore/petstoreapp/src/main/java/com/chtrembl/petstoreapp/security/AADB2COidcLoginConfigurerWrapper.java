@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 })
 public class AADB2COidcLoginConfigurerWrapper {
 
-	@Autowired(required = false)
+	@Autowired
 	private AadB2cOidcLoginConfigurer configurer = null;
 
 	public AadB2cOidcLoginConfigurer getConfigurer() {
